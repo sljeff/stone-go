@@ -69,7 +69,7 @@ import this
 
 myvar = 10086  // comment
 anthor = "the way to go"`))
-	t.Log("readLine 1")
+	t.Log("read line 1")
 	err := lex.readLine()
 	if err != nil {
 		t.Error(err)
@@ -81,7 +81,7 @@ anthor = "the way to go"`))
 		t.Errorf("error length: %v %v", len(lex.queue), lex.queue[0])
 	}
 
-	t.Log("readLine 2")
+	t.Log("read line 2")
 	lex.readLine()
 	if len(lex.queue) != 3 { // 2 EOLs
 		t.Errorf("error length: %v", len(lex.queue))
@@ -89,7 +89,7 @@ anthor = "the way to go"`))
 	t.Log(lex.queue[1].GetText())
 	t.Log(lex.queue[1].lineNum)
 
-	t.Log("readLine 3")
+	t.Log("read line 3")
 	lex.readLine()
 	queue := []Token{
 		EOL,
@@ -100,11 +100,11 @@ anthor = "the way to go"`))
 		EOL,
 	}
 
-	t.Log("readLine 4")
+	t.Log("read line 4")
 	lex.readLine()
 	queue = append(queue, EOL)
 
-	t.Log("readLine 5")
+	t.Log("read line 5")
 	lex.readLine()
 	queue = append(
 		queue,
@@ -114,7 +114,7 @@ anthor = "the way to go"`))
 		EOL,
 	)
 
-	t.Log("readLine 6")
+	t.Log("read line 6")
 	lex.readLine()
 	queue = append(
 		queue,
@@ -131,5 +131,77 @@ anthor = "the way to go"`))
 			text, err = queue[index].GetText()
 			t.Error("error", queue[index].tokenType, text, err)
 		}
+	}
+}
+
+func TestLexer_Read(t *testing.T) {
+	lex := NewLexer(strings.NewReader(
+		`// comment
+"hello\n"
+import this
+
+myvar = 10086  // comment
+anthor = "the way to go"`))
+
+	var token *Token
+	token = lex.Read()
+	if *token != EOL { // EOL
+		t.Error("error")
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: StrLiteral, value: `"hello\n"`, lineNum: 2}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != EOL { // EOL
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: Identifier, value: "import", lineNum: 3}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: Identifier, value: "this", lineNum: 3}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != EOL { // EOL
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != EOL { // EOL
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: Identifier, value: "myvar", lineNum: 5}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: Identifier, value: "=", lineNum: 5}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: NumLiteral, value: "10086", lineNum: 5}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != EOL { // EOL
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: Identifier, value: "anthor", lineNum: 6}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: Identifier, value: "=", lineNum: 6}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != (Token{tokenType: StrLiteral, value: `"the way to go"`, lineNum: 6}) {
+		t.Error("error", token.value, token.tokenType, token.lineNum)
+	}
+	token = lex.Read()
+	if *token != EOL { // EOL
+		t.Error("error", token.value, token.tokenType, token.lineNum)
 	}
 }

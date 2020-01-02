@@ -179,3 +179,32 @@ func (lex *Lexer) addToken(text string, indexes []int, lineNum uint) error {
 	lex.queue = append(lex.queue, token)
 	return nil
 }
+
+func (lex *Lexer) fillQueue(i int) error {
+	for i >= len(lex.queue) {
+		if !lex.hasMore {
+			return fmt.Errorf("hasMore is false")
+		}
+		if err := lex.readLine(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (lex *Lexer) Read() *Token {
+	if lex.fillQueue(0) == nil {
+		token := lex.queue[0]
+		newQueue := append([]*Token{}, lex.queue[1:]...)
+		lex.queue = newQueue
+		return token
+	}
+	return &EOF
+}
+
+func (lex *Lexer) Peek(i int) *Token {
+	if lex.fillQueue(i) == nil {
+		return lex.queue[i]
+	}
+	return &EOF
+}
