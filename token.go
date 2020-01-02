@@ -1,7 +1,6 @@
 package stone
 
 import (
-	"log"
 	"bufio"
 	"fmt"
 	"io"
@@ -11,13 +10,13 @@ import (
 
 const (
 	regexPat   = `\s*((//.*)|([0-9]+)|("(\\"|\\\\|\\n|[^"])*")|[A-Z_a-z][A-Z_a-z0-9]*|==|<=|>=|&&|\|\||[[:punct:]])?`
-	EOL        = `\n`
 	NumLiteral = 1
 	Identifier = 2
 	StrLiteral = 3
 )
 
 var (
+	EOL          = Token{value: `\n`}
 	EOF          = Token{}
 	Parttern     = regexp.MustCompile(regexPat)
 	tokenTypeAll = map[TokenType]struct{}{
@@ -118,7 +117,7 @@ type Lexer struct {
 
 func NewLexer(reader io.Reader) *Lexer {
 	return &Lexer{
-		reader: reader,
+		reader:  reader,
 		scanner: bufio.NewScanner(reader),
 		hasMore: true,
 	}
@@ -140,15 +139,16 @@ func (lex *Lexer) readLine() error {
 		if len(indexes) == 0 {
 			return fmt.Errorf("invalid line: %s", subLine)
 		}
-		lex.addToken(subLine, indexes, lex.scanLineNum)
+		if err := lex.addToken(subLine, indexes, lex.scanLineNum); err != nil {
+			return err
+		}
 		pos += indexes[1]
 	}
-	lex.queue = append(lex.queue, &EOF)
+	lex.queue = append(lex.queue, &EOL)
 	return nil
 }
 
 func (lex *Lexer) addToken(text string, indexes []int, lineNum uint) error {
-	log.Print(text, indexes, lineNum)
 	if indexes[2] == indexes[3] { // total
 		return nil
 	}
@@ -166,10 +166,10 @@ func (lex *Lexer) addToken(text string, indexes []int, lineNum uint) error {
 		tokenType = StrLiteral
 		tokenStart = indexes[8]
 		tokenEnd = indexes[9]
-	} else if indexes[10] != indexes[11] { // Identifier
+	} else { // Identifier
 		tokenType = Identifier
-		tokenStart = indexes[10]
-		tokenEnd = indexes[11]
+		tokenStart = indexes[2]
+		tokenEnd = indexes[3]
 	}
 
 	token, err := NewToken(lineNum, tokenType, text[tokenStart:tokenEnd])

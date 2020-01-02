@@ -63,10 +63,12 @@ func TestToken_GetText(t *testing.T) {
 
 func TestLexer_readLine(t *testing.T) {
 	lex := NewLexer(strings.NewReader(
-`// comment
+		`// comment
 "hello\n"
-import this`,
-	))
+import this
+
+myvar = 10086  // comment
+anthor = "the way to go"`))
 	t.Log("readLine 1")
 	err := lex.readLine()
 	if err != nil {
@@ -75,16 +77,59 @@ import this`,
 	if !lex.hasMore {
 		t.Error("lex.hasMore should be true")
 	}
-	if len(lex.queue) != 1 {  // EOL
+	if len(lex.queue) != 1 { // EOL
 		t.Errorf("error length: %v %v", len(lex.queue), lex.queue[0])
 	}
+
 	t.Log("readLine 2")
 	lex.readLine()
-	if len(lex.queue) != 3 {  // 2 EOLs
+	if len(lex.queue) != 3 { // 2 EOLs
 		t.Errorf("error length: %v", len(lex.queue))
 	}
 	t.Log(lex.queue[1].GetText())
 	t.Log(lex.queue[1].lineNum)
+
 	t.Log("readLine 3")
-	// TODO
+	lex.readLine()
+	queue := []Token{
+		EOL,
+		Token{tokenType: StrLiteral, value: `"hello\n"`, lineNum: 2},
+		EOL,
+		Token{tokenType: Identifier, value: "import", lineNum: 3},
+		Token{tokenType: Identifier, value: "this", lineNum: 3},
+		EOL,
+	}
+
+	t.Log("readLine 4")
+	lex.readLine()
+	queue = append(queue, EOL)
+
+	t.Log("readLine 5")
+	lex.readLine()
+	queue = append(
+		queue,
+		Token{tokenType: Identifier, value: "myvar", lineNum: 5},
+		Token{tokenType: Identifier, value: "=", lineNum: 5},
+		Token{tokenType: NumLiteral, value: "10086", lineNum: 5},
+		EOL,
+	)
+
+	t.Log("readLine 6")
+	lex.readLine()
+	queue = append(
+		queue,
+		Token{tokenType: Identifier, value: "anthor", lineNum: 6},
+		Token{tokenType: Identifier, value: "=", lineNum: 6},
+		Token{tokenType: StrLiteral, value: `"the way to go"`, lineNum: 6},
+		EOL,
+	)
+
+	for index, token := range lex.queue {
+		if *token != queue[index] {
+			text, err := token.GetText()
+			t.Error("error", token.tokenType, text, err)
+			text, err = queue[index].GetText()
+			t.Error("error", queue[index].tokenType, text, err)
+		}
+	}
 }
