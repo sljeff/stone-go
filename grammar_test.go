@@ -26,7 +26,7 @@ h = {
 	"d": ${SENTRY_DSN},
 	"e": "this is good",
 	"f": g,
-	"g": [1, 2, FALSE]
+	"g": [1, 2, FALSE],
 }
 hh = {}
 i = [

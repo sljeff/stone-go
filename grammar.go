@@ -38,11 +38,11 @@ type RightValue struct {
 }
 
 type ArrayValue struct {
-	Array []*RightValue `("[" "]") | ("[" @@ ("," @@)* "]")`
+	Array []*RightValue `("[" "]") | ("[" @@ ("," @@)* ","? "]")`
 }
 
 type MapValue struct {
-	KVs []*KV `("{" "}") | ("{" @@ ("," @@)* "}")`
+	KVs []*KV `("{" "}") | ("{" @@ ("," @@)* ","? "}")`
 }
 
 type KV struct {
