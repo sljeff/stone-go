@@ -1,0 +1,36 @@
+[This]
+a = 1
+b = 10.1
+c = TRUE
+d = "this is good"
+e = ${SENTRY_DSN}
+DELETE a
+
+f = [1, 2, 3]
+ff = []
+g = [1, 10.1, c, FALSE, ${SENTRY_DSN}]
+h = {
+	"a": 1,
+	"b": FALSE,
+	"c": 10.1,
+	"d": ${SENTRY_DSN},
+	"e": "this is good",
+	"f": g,
+	"g": [1, 2, FALSE],
+}
+hh = {}
+i = [
+	[1, 2, 3],
+	hh,
+	{"a": TRUE},
+	"string"
+]
+DELETE h["d"]
+DELETE i[3]
+h["d"] = 100
+i[0] = "string"
+i[1] = h["f"]
+
+[That] < [This]
+i[0] = [1, 2, 3]
+

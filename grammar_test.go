@@ -65,4 +65,5 @@ func TestGrammar(t *testing.T) {
 	assert.Equal(t, *stone.Sections[1].ParentName, "This")
 	assert.Equal(t, stone.Sections[0].Stmts[0].Assignment.Left.Identifier, "a")
 	assert.Equal(t, *stone.Sections[0].Stmts[0].Assignment.Right.Int, 1)
+	assert.Equal(t, stone.Sections[0].Stmts[10].Assignment.Left.Identifier, "hh")
 }
