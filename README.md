@@ -3,6 +3,8 @@ Stone configuration language Golang implement.
 
 # Example
 
+An example: [config.stone](example/config.stone)
+
 ```bash
 cd example
 go run main.go
